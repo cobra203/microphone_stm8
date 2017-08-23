@@ -5,4 +5,5 @@ settings/*
 *.o
 *.d
 *.i
+../micphone_mcu_v1.0/*
 *.ew*

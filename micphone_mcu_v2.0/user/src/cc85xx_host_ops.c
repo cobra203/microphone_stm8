@@ -91,8 +91,10 @@ static int _host_try_join_default_network(uint16_t join_to)
 
 static void _host_pairing_network_stop(void *args)
 {
-    //mic_led_dark();
-    net_pairing_flag = 0;
+    if(1 == net_pairing_flag) {
+        mic_led_dark();
+        net_pairing_flag = 0;
+    }
 }
 
 
@@ -123,16 +125,18 @@ void host_precess(void)
             _host_updata_default_network(nwm_info.device_id);
             _host_set_audio_channel(nwm_info.free_chnn);      
             net_con_flag = 1;
+            net_pairing_flag = 0;
         }
     }
     else {
-        if(!net_pairing_flag) {
-            mic_led_dark();
-        }
         if(net_con_flag) {
-            net_con_flag = 0;
+            if(0 == net_pairing_flag) {
+                mic_led_dark();
+            }
+            DEBUG("Dcn\n");
             delay_ms(300);
             host_ehif_updata_status();
+            net_con_flag = 0;
         }
         _host_try_join_default_network(100);
     }
@@ -141,10 +145,16 @@ void host_precess(void)
 void host_pairing_network(uint16_t join_to)
 {
     uint8_t timer;
-    
+
+    if(1 == net_pairing_flag) {
+        return;
+    }
     _host_ehif_wait_ready();
     ehif_NWM_DO_JOIN(join_to, 0xffffffff, MICPHONE_MANF_ID);
+ 
     net_pairing_flag = 1;
+    mic_led_flicker();
+
     timer_task(&timer, TMR_ONCE, 10500, 0, _host_pairing_network_stop, (void *)0);
 }
 

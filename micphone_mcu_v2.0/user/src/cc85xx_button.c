@@ -35,7 +35,6 @@ int _button_process(struct button_s *button)
         switch(button->type) {
         case BTN_ID_PC3_PAIRING:
             host_pairing_network(1000);
-            mic_led_flicker();
             break;
         case BTN_ID_PD2_MUTE_5:            
             if(button->state.effective != ECT_FOCUSED) {
